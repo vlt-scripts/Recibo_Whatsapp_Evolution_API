@@ -11,7 +11,7 @@ TRIGGER insere dados na tabela brl_pago após a inserção de um novo registro, 
 
 Se essas condições forem atendidas, os dados são inseridos com a data e hora atuais.
 
-essa opção de Recebe WhatsApp só foi adicionado na versão  24.03
+Obs: essa opção de "Recebe WhatsApp" só foi adicionado na versão  24.03
 
 ----------------------------------------------------------------------------------------------
 
