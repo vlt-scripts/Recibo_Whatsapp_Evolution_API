@@ -11,7 +11,8 @@ TRIGGER insere dados na tabela brl_pago após a inserção de um novo registro, 
 
 Se essas condições forem atendidas, os dados são inseridos com a data e hora atuais.
 
-"essa opção de Recebe WhatsApp só foi adicionado na versão  24.03"
+essa opção de Recebe WhatsApp só foi adicionado na versão  24.03
+
 ----------------------------------------------------------------------------------------------
 
 1. Para colocar URL do Servidor, Nome da Instancia, Token da Instancia, da API é somente ir na engrenagem no canto direito do addon que vai ter os campos designados para isso.
