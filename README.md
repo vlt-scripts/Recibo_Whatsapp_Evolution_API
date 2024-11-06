@@ -1,6 +1,8 @@
 # Recibo_Whatsapp_Evolution_API
 Esse Addon tem como Objetivo enviar Comprovante de Pagamento, pelo whatsapp, usando a Evolution API 
 
+Esse addon funciona nas duas versões, Evolution API v1, Evolution API v2.
+
 # Resumo
 
 TRIGGER insere dados na tabela brl_pago após a inserção de um novo registro, mas só se:
