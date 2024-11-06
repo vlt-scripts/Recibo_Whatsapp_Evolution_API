@@ -15,7 +15,7 @@ Obs: essa opção de "Recebe WhatsApp" só foi adicionado na versão  24.03
 
 ----------------------------------------------------------------------------------------------
 
-1. Para colocar URL do Servidor, Nome da Instancia, Token da Instancia, da API é somente ir na engrenagem no canto direito do addon que vai ter os campos designados para isso.
+1. Para colocar URL do Servidor, Nome da Instancia, Token da Instancia, é somente ir na engrenagem no canto direito do addon que vai ter os campos designados para isso.
 
 2. Para agendar é só clicar no ícone de calendário, que lá vai ter opção de agendar o Intervalo (min):.
 
