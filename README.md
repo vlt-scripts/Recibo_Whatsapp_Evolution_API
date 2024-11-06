@@ -45,11 +45,13 @@ sudo apparmor_parser -r /etc/apparmor.d/usr.sbin.php-fpm7.3
 sudo service php7.3-fpm restart
 ```
 
-eu usei como base para esse addon o codigo Membro do Forum, 
+----------------------------------------------------------------------------
+
+Eu usei como base para esse addon --->
+
 
 https://mk-auth.com.br/forum/topics/rebido-de-pagamento-automatico-pelo-whatsapp
 
-e modifiquei para usar com a api 
 
 https://mk-auth.com.br/forum/topics/nova-iso-com-kernel-6-6
 
