@@ -1,4 +1,4 @@
-# Recibo_Whatsapp_Mk-auth_
+# Recibo_Whatsapp_Mk-auth
 Esse Addon tem como Objetivo enviar Comprovante de Pagamento, pelo whatsapp, usando a Evolution API 
 
 # Resumo
