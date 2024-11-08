@@ -27,9 +27,10 @@ Obs: essa opção de "Recebe WhatsApp" só foi adicionado na versão  24.03
 
 5. Adicione estas linha no arquivo:
 
-        #Addon Recibo Whatsapp
-        /opt/mk-auth/dados/Recibo_Whatsapp/ rw,
-        /opt/mk-auth/dados/Recibo_Whatsapp/** rw,
+        #Addon Recibo Evolution API
+        /opt/mk-auth/dados/Recibo_Evolution/ rw,
+        /opt/mk-auth/dados/Recibo_Evolution/** rwk,
+
 
 
 
