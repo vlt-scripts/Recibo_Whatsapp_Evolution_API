@@ -147,12 +147,12 @@ if ($recriar_trigger) {
 }
 
 // Caminho para o arquivo temporário do cron
-$cronFilePath = '/tmp/cron_recibo_whatsapp';
+$cronFilePath = '/tmp/cron_recibo_evolution';
 
 // Função para atualizar o cron com o intervalo especificado
 function atualizarCron($intervaloMinutos) {
     global $cronFilePath;
-    $comando = "/usr/bin/php -q /opt/mk-auth/admin/addons/Recibo_Whatsapp/enviozap.php >/dev/null 2>&1";
+    $comando = "/usr/bin/php -q /opt/mk-auth/admin/addons/Recibo_Evolution/enviozap.php >/dev/null 2>&1";
     $cronLinha = "*/$intervaloMinutos * * * * $comando" . PHP_EOL;
     file_put_contents($cronFilePath, $cronLinha);
     exec("crontab $cronFilePath");
@@ -166,7 +166,7 @@ function obterAgendamentoAtual() {
 
 // Função para excluir apenas o agendamento específico
 function excluirAgendamentoEspecifico() {
-    $output = shell_exec("crontab -l | grep -v '/usr/bin/php -q /opt/mk-auth/admin/addons/Recibo_Whatsapp/enviozap.php >/dev/null 2>&1' | crontab -");
+    $output = shell_exec("crontab -l | grep -v '/usr/bin/php -q /opt/mk-auth/admin/addons/Recibo_Evolution/enviozap.php >/dev/null 2>&1' | crontab -");
     if ($output === null) {
         echo '<script>alert("Agendamento excluído com sucesso.");</script>';
     } else {
@@ -187,7 +187,7 @@ if (isset($_POST['delete_schedule'])) {
 }
 
 // Caminho e permissões para o diretório de configurações
-$dir_path = '/opt/mk-auth/dados/Recibo_Whatsapp';
+$dir_path = '/opt/mk-auth/dados/Recibo_Evolution';
 $file_path = $dir_path . '/config.php';
 if (!is_dir($dir_path)) mkdir($dir_path, 0755, true);
 
@@ -593,7 +593,7 @@ $conn->close();
 </div>
 <div class="container" style="background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-radius: 5px; max-height: 300px; overflow-y: scroll; color: blue;">
     <pre><?php
-        $logFile = '/opt/mk-auth/dados/Recibo_Whatsapp/log_pagamentos.txt';
+        $logFile = '/opt/mk-auth/dados/Recibo_Evolution/log_pagamentos.txt';
         if (file_exists($logFile)) {
             // Lê o conteúdo do arquivo e o divide em linhas
             $logContent = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);

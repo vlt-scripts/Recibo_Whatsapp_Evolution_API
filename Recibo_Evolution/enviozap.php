@@ -8,7 +8,7 @@ function desencriptar($dados, $chave) {
 }
 
 // Carrega e desencripta configurações de token e IP
-$configFile = '/opt/mk-auth/dados/Recibo_Whatsapp/config.php';
+$configFile = '/opt/mk-auth/dados/Recibo_Evolution/config.php';
 if (file_exists($configFile)) {
     $config = include($configFile);
     $ip = desencriptar($config['ip'], $chave_criptografia);
@@ -37,7 +37,7 @@ if ($con->connect_error) {
 }
 
 // Arquivo de log
-$logFile = '/opt/mk-auth/dados/Recibo_Whatsapp/log_pagamentos.txt';
+$logFile = '/opt/mk-auth/dados/Recibo_Evolution/log_pagamentos.txt';
 
 // Função para enviar a mensagem com detecção automática da versão
 function enviarMensagemEvolutionAPI($celular, $mensagem) {
