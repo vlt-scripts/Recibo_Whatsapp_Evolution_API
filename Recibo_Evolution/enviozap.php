@@ -1,10 +1,16 @@
 <?php
+// Versao com Http e Https Automaticos
 // Defina a chave de criptografia (deve ser a mesma usada no arquivo de configuração)
 $chave_criptografia = '3NyBm8aa54eg8jeE';
 
 // Função para desencriptar os dados
 function desencriptar($dados, $chave) {
     return openssl_decrypt($dados, 'aes-256-cbc', $chave, 0, str_repeat('0', 16));
+}
+
+// Função para verificar se o IP é público ou privado
+function isPrivateIP($ip) {
+    return (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false);
 }
 
 // Carrega e desencripta configurações de token e IP
@@ -16,13 +22,17 @@ if (file_exists($configFile)) {
     $token = desencriptar($config['token'], $chave_criptografia);
 
     if ($token && $ip) {
-        $apiBaseURL = "http://$ip/message/sendText/$user"; // URL da Evolution API
+        // Define o protocolo com base no tipo de IP
+        $protocol = isPrivateIP($ip) ? 'http' : 'https';
+        $apiBaseURL = "$protocol://$ip/message/sendText/$user"; // URL da Evolution API
     } else {
         die("Erro: Falha ao desencriptar o token ou IP.");
     }
 } else {
     die("Erro: Arquivo de configuração não encontrado.");
 }
+
+//--------------------------------------------------------------------------------//
 
 // Configurações do banco de dados
 $host = "localhost";
@@ -130,9 +140,11 @@ if ($stmt) {
         $datavenc = date('d/m/Y', strtotime($row['datavenc']));
         $valor = number_format($row['valor'], 2, ',', '.');
         $valorpag = number_format($row['valorpag'], 2, ',', '.');
+		$coletor = $row['coletor'];
+        $formapag = $row['formapag'];
 
         // Busca o nome e o número de celular do cliente com base no login
-        $clienteQuery = "SELECT nome, celular FROM sis_cliente WHERE login = ?";
+        $clienteQuery = "SELECT nome, celular, cpf_cnpj FROM sis_cliente WHERE login = ?";
         $clienteStmt = $con->prepare($clienteQuery);
         
         if ($clienteStmt) {
@@ -141,19 +153,34 @@ if ($stmt) {
             $clienteResult = $clienteStmt->get_result();
             $celular = "";
             $nome = "";
+			$cpfCnpj = "";
 
             if ($clienteRow = $clienteResult->fetch_assoc()) {
                 $nome = $clienteRow['nome'];
                 $celular = formatarNumero($clienteRow['celular']);
-            }
+				
+            // Verifica se é CPF (11 dígitos) ou CNPJ (14 dígitos) e aplica a formatação apropriada
+            $cpfCnpj = preg_replace(
+                strlen($clienteRow['cpf_cnpj']) === 11 
+                ? "/(\d{3})(\d{3})(\d{3})(\d{2})/" 
+                : "/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", 
+                strlen($clienteRow['cpf_cnpj']) === 11 
+                ? '$1.$2.$3-$4' 
+                : '$1.$2.$3/$4-$5', 
+            $clienteRow['cpf_cnpj']
+        );
+    }
 
             // Define a mensagem com o texto e emojis
             $mensagem = "💵 *CONFIRMAÇÃO DE PAGAMENTO*\n\n".
                         "👤 *Cliente*: $nome\n".
+						"📑 *CPF/CNPJ*: $cpfCnpj\n".
                         "✅ *Pagamento recebido em*: $datapag\n".
                         "📅 *Fatura com vencimento em*: $datavenc\n".
                         "💰 *Valor da fatura*: R$ $valor\n".
-                        "💸 *Valor do pagamento*: R$ $valorpag\n\n".               
+                        "💸 *Valor do pagamento*: R$ $valorpag\n".       
+                        "👤 *Pagamento recebido por*: $coletor\n".	
+                        "💳 *Forma de pagamento*: $formapag\n\n".						
                         "*Atenciosamente, Nome do Seu Provedor Aqui* 🤝\n".
                         "••••••••••••••••••••••••••••••••••\n".
                         "_Mensagem gerada automaticamente pelo sistema._";
