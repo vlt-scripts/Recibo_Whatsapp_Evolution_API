@@ -1,5 +1,5 @@
 <?php
-$logFile = '/opt/mk-auth/dados/Recibo_Whatsapp/log_pagamentos.txt';
+$logFile = '/opt/mk-auth/dados/Recibo_Evolution/log_pagamentos.txt';
 if (file_exists($logFile)) {
     file_put_contents($logFile, ''); // Limpa o conteúdo do arquivo de log
     echo "<script>alert('Log limpo com sucesso!');</script>";
