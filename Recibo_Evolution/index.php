@@ -178,13 +178,23 @@ function excluirAgendamentoEspecifico() {
 if (isset($_POST['intervalo_minutos'])) {
     $intervaloMinutos = (int)$_POST['intervalo_minutos'];
     atualizarCron($intervaloMinutos);
-    echo "<script>alert('Agendamento atualizado para cada $intervaloMinutos minutos!');</script>";
+    echo "<script>
+        alert('Agendamento atualizado para cada $intervaloMinutos minutos!');
+        window.location.href = window.location.href; // Redireciona para a mesma página para limpar o POST
+    </script>";
+    exit;
 }
 
 // Verifica se o formulário de exclusão foi enviado
 if (isset($_POST['delete_schedule'])) {
     excluirAgendamentoEspecifico();
+    echo '<script>
+        window.location.href = window.location.href; // Redireciona para a mesma página
+    </script>';
+    exit;
 }
+
+//----------------------------------------------------------------------------------//
 
 // Caminho e permissões para o diretório de configurações
 $dir_path = '/opt/mk-auth/dados/Recibo_Evolution';
@@ -212,16 +222,20 @@ if (!file_exists($file_path)) {
 
 // Lê e desencripta as configurações do arquivo
 $configuracoes = include($file_path);
+$protocol = $configuracoes['protocol'] ?? 'http';
 $ip = isset($configuracoes['ip']) ? desencriptar($configuracoes['ip'], $chave_criptografia) : '';
 $user = isset($configuracoes['user']) ? desencriptar($configuracoes['user'], $chave_criptografia) : '';
 $token = isset($configuracoes['token']) ? desencriptar($configuracoes['token'], $chave_criptografia) : '';
 
 // Salva o token, IP e user encriptados no arquivo, se o formulário foi enviado
 if (isset($_POST['salvar_configuracoes'])) {
+    $protocol = $_POST['protocol'] ?? 'http';
     $ip = $_POST['ip'] ?? '';
     $user = $_POST['user'] ?? '';
     $token = $_POST['token'] ?? '';
+    
     $novas_configuracoes = [
+        'protocol' => $protocol,
         'ip' => encriptar($ip, $chave_criptografia),
         'user' => encriptar($user, $chave_criptografia),
         'token' => encriptar($token, $chave_criptografia),
@@ -404,6 +418,9 @@ if (isset($_POST['salvar_configuracoes'])) {
                 Utilize as informações abaixo como exemplo para configurar o envio de mensagens com a API.
             </p>
             <ul style="list-style: none; padding: 0; margin-top: 15px;">
+			    <li style="margin-bottom: 8px;">
+                    <strong style="color: #31708f;">Protocolo:</strong> <span style="color: #555;">HTTP / HTTPS</span> <em style="color: #888;">(Exemplo)</em>
+                </li>
                 <li style="margin-bottom: 8px;">
                     <strong style="color: #31708f;">URL do Servidor:</strong> <span style="color: #555;">192.168.3.250:8000</span> <em style="color: #888;">(Exemplo)</em>
                 </li>
@@ -419,31 +436,38 @@ if (isset($_POST['salvar_configuracoes'])) {
             </p>
         </div>
 
-        <!-- Formulário de Configurações -->
-        <form method="post">
-            <!-- Campo SERVER -->
-            <label for="ip" style="font-weight: bold;">URL do Servidor:</label>
-            <input type="text" id="ip" name="ip" value="<?php echo htmlspecialchars($ip); ?>" style="width: 100%; padding: 8px; margin: 5px 0 15px; border: 1px solid #ccc; border-radius: 5px;">
+<!-- Formulário de Configurações -->
+<form method="post">
+    <!-- Campo Protocolo -->
+    <label for="protocol" style="font-weight: bold;">Protocolo:</label>
+    <select id="protocol" name="protocol" style="width: 100%; padding: 8px; margin: 5px 0 15px; border: 1px solid #ccc; border-radius: 5px;">
+        <option value="http" <?php echo ($protocol === 'http' ? 'selected' : ''); ?>>HTTP</option>
+        <option value="https" <?php echo ($protocol === 'https' ? 'selected' : ''); ?>>HTTPS</option>
+    </select>
 
-            <!-- Campo User -->
-            <label for="user" style="font-weight: bold;">Nome da Instancia:</label>
-            <input type="text" id="user" name="user" value="<?php echo htmlspecialchars($user); ?>" style="width: 100%; padding: 8px; margin: 5px 0 15px; border: 1px solid #ccc; border-radius: 5px;">
+    <!-- Campo URL do Servidor -->
+    <label for="ip" style="font-weight: bold;">URL do Servidor:</label>
+    <input type="text" id="ip" name="ip" value="<?php echo htmlspecialchars($ip); ?>" style="width: 100%; padding: 8px; margin: 5px 0 15px; border: 1px solid #ccc; border-radius: 5px;">
 
-            <!-- Campo Token -->
-            <label for="token" style="font-weight: bold;">Token da Instancia:</label>
-            <div style="position: relative;">
-                <input type="password" id="token" name="token" value="<?php echo htmlspecialchars($token); ?>" style="width: 100%; padding: 8px; margin: 5px 0 15px; border: 1px solid #ccc; border-radius: 5px;">
-                <label style="display: flex; align-items: center; margin-top: 5px;">
-                    <input type="checkbox" onclick="togglePasswordVisibility()" style="margin-right: 5px;">
-                    Mostrar Token
-                </label>
-            </div>
+    <!-- Campo Nome da Instância -->
+    <label for="user" style="font-weight: bold;">Nome da Instância:</label>
+    <input type="text" id="user" name="user" value="<?php echo htmlspecialchars($user); ?>" style="width: 100%; padding: 8px; margin: 5px 0 15px; border: 1px solid #ccc; border-radius: 5px;">
 
-            <!-- Botão Salvar Configurações -->
-            <button type="submit" name="salvar_configuracoes" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s ease;">
-                Salvar Configurações
-            </button>
-        </form>
+    <!-- Campo Token da Instância -->
+    <label for="token" style="font-weight: bold;">Token da Instância:</label>
+    <div style="position: relative;">
+        <input type="password" id="token" name="token" value="<?php echo htmlspecialchars($token); ?>" style="width: 100%; padding: 8px; margin: 5px 0 15px; border: 1px solid #ccc; border-radius: 5px;">
+        <label style="display: flex; align-items: center; margin-top: 5px;">
+            <input type="checkbox" onclick="togglePasswordVisibility()" style="margin-right: 5px;">
+            Mostrar Token
+        </label>
+    </div>
+
+    <!-- Botão Salvar Configurações -->
+    <button type="submit" name="salvar_configuracoes" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s ease;">
+        Salvar Configurações
+    </button>
+</form>
     </div>
 
     <!-- Formulário de Agendamento -->

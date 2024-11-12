@@ -1,5 +1,4 @@
 <?php
-// Versao com Http e Https Automaticos
 // Defina a chave de criptografia (deve ser a mesma usada no arquivo de configuração)
 $chave_criptografia = '3NyBm8aa54eg8jeE';
 
@@ -8,25 +7,25 @@ function desencriptar($dados, $chave) {
     return openssl_decrypt($dados, 'aes-256-cbc', $chave, 0, str_repeat('0', 16));
 }
 
-// Função para verificar se o IP é público ou privado
-function isPrivateIP($ip) {
-    return (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false);
-}
-
-// Carrega e desencripta configurações de token e IP
+// Caminho do arquivo de configurações criptografadas
 $configFile = '/opt/mk-auth/dados/Recibo_Evolution/config.php';
+
+// Verifica se o arquivo de configuração existe e carrega os dados
 if (file_exists($configFile)) {
     $config = include($configFile);
+    
+    // Desencripta os dados necessários
+    $protocol = isset($config['protocol']) ? $config['protocol'] : 'http';
     $ip = desencriptar($config['ip'], $chave_criptografia);
     $user = desencriptar($config['user'], $chave_criptografia);
     $token = desencriptar($config['token'], $chave_criptografia);
 
-    if ($token && $ip) {
-        // Define o protocolo com base no tipo de IP
-        $protocol = isPrivateIP($ip) ? 'http' : 'https';
-        $apiBaseURL = "$protocol://$ip/message/sendText/$user"; // URL da Evolution API
+    // Verifica se todos os valores necessários foram desencriptados com sucesso
+    if ($protocol && $token && $ip && $user) {
+        // Monta a URL da API com o protocolo selecionado
+        $apiBaseURL = "$protocol://$ip/message/sendText/$user";
     } else {
-        die("Erro: Falha ao desencriptar o token ou IP.");
+        die("Erro: Falha ao desencriptar o protocolo, token, IP ou usuário.");
     }
 } else {
     die("Erro: Arquivo de configuração não encontrado.");
