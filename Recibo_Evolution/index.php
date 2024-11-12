@@ -244,7 +244,7 @@ if (isset($_POST['salvar_configuracoes'])) {
     $config_content = '<?php return ' . var_export($novas_configuracoes, true) . ';';
     if (file_put_contents($file_path, $config_content) !== false) {
         chmod($file_path, 0600);  // Define permissão 0600 para o arquivo
-        echo "<script>alert('Configurações de Token, IP e User salvas com sucesso!');</script>";
+        echo "<script>alert('Configurações de Protocolo, Token, IP e User salvas com sucesso!');</script>";
     } else {
         echo "<script>alert('Erro ao salvar as configurações. Verifique as permissões do diretório.');</script>";
     }
