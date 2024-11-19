@@ -146,28 +146,75 @@ if ($recriar_trigger) {
     }
 }
 
+//---------------------------------------------------------------------------------------//
+
 // Caminho para o arquivo temporário do cron
 $cronFilePath = '/tmp/cron_recibo_evolution';
+$comando = "/usr/bin/php -q /opt/mk-auth/admin/addons/Recibo_Evolution/enviozap.php >/dev/null 2>&1";
 
 // Função para atualizar o cron com o intervalo especificado
 function atualizarCron($intervaloMinutos) {
-    global $cronFilePath;
-    $comando = "/usr/bin/php -q /opt/mk-auth/admin/addons/Recibo_Evolution/enviozap.php >/dev/null 2>&1";
-    $cronLinha = "*/$intervaloMinutos * * * * $comando" . PHP_EOL;
-    file_put_contents($cronFilePath, $cronLinha);
-    exec("crontab $cronFilePath");
+    global $cronFilePath, $comando;
+
+    // Obter os agendamentos atuais
+    $cronAtual = shell_exec("crontab -l 2>/dev/null") ?: '';
+
+    // Remove linhas existentes para o comando específico
+    $cronAtual = preg_replace("/^.*" . preg_quote($comando, '/') . ".*$/m", '', $cronAtual);
+
+    // Adiciona o novo agendamento
+    $cronNovo = "*/$intervaloMinutos * * * * $comando" . PHP_EOL . $cronAtual;
+
+    // Salva o novo conteúdo no arquivo temporário
+    file_put_contents($cronFilePath, $cronNovo);
+
+    // Aplica o novo crontab
+    exec("crontab $cronFilePath", $output, $status);
+
+    if ($status === 0) {
+        echo '<script>alert("Agendamento atualizado com sucesso!");</script>';
+    } else {
+        echo '<script>alert("Erro ao atualizar o agendamento.");</script>';
+    }
 }
 
 // Função para exibir o agendamento atual
 function obterAgendamentoAtual() {
-    $output = shell_exec("crontab -l");
-    return $output ? htmlspecialchars($output) : "<span class='no-schedule'>Nenhum agendamento configurado</span>";
+    global $comando;
+
+    // Obter todos os agendamentos atuais
+    $output = shell_exec("crontab -l 2>/dev/null") ?: '';
+
+    // Filtrar apenas as linhas relacionadas ao comando específico
+    $linhas = explode("\n", $output);
+    $agendamento = array_filter($linhas, function ($linha) use ($comando) {
+        return strpos($linha, $comando) !== false;
+    });
+
+    return $agendamento ? htmlspecialchars(implode("\n", $agendamento)) : "<span class='no-schedule'>Nenhum agendamento configurado</span>";
 }
 
 // Função para excluir apenas o agendamento específico
 function excluirAgendamentoEspecifico() {
-    $output = shell_exec("crontab -l | grep -v '/usr/bin/php -q /opt/mk-auth/admin/addons/Recibo_Evolution/enviozap.php >/dev/null 2>&1' | crontab -");
-    if ($output === null) {
+    global $cronFilePath, $comando;
+
+    // Obter a tabela de crons atual
+    $cronAtual = shell_exec("crontab -l 2>/dev/null") ?: '';
+
+    // Remove as linhas relacionadas ao comando específico
+    $cronAtual = preg_replace("/^.*" . preg_quote($comando, '/') . ".*$/m", '', $cronAtual);
+
+    // Atualiza o cron
+    if (trim($cronAtual) === '') {
+        // Se nenhum cron restante, limpa o crontab
+        exec("crontab -r", $output, $status);
+    } else {
+        // Salva a tabela de crons atualizada
+        file_put_contents($cronFilePath, $cronAtual);
+        exec("crontab $cronFilePath", $output, $status);
+    }
+
+    if ($status === 0) {
         echo '<script>alert("Agendamento excluído com sucesso.");</script>';
     } else {
         echo '<script>alert("Erro ao excluir o agendamento.");</script>';
@@ -179,7 +226,6 @@ if (isset($_POST['intervalo_minutos'])) {
     $intervaloMinutos = (int)$_POST['intervalo_minutos'];
     atualizarCron($intervaloMinutos);
     echo "<script>
-        alert('Agendamento atualizado para cada $intervaloMinutos minutos!');
         window.location.href = window.location.href; // Redireciona para a mesma página para limpar o POST
     </script>";
     exit;
