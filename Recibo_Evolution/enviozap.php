@@ -171,15 +171,16 @@ if ($stmt) {
     }
 
             // Define a mensagem com o texto e emojis
-            $mensagem = "💵 *CONFIRMAÇÃO DE PAGAMENTO*\n\n".
+            $mensagem = "💵 *CONFIRMAÇÃO DE PAGAMENTO*\n\n".                   
                         "👤 *Cliente*: $nome\n".
-						"📑 *CPF/CNPJ*: $cpfCnpj\n".
+			            "📄 *ID do Pagamento*: $row[id]\n". // Adiciona o ID do pagamento
+                        "📑 *CPF/CNPJ*: $cpfCnpj\n".
                         "✅ *Pagamento recebido em*: $datapag\n".
                         "📅 *Fatura com vencimento em*: $datavenc\n".
                         "💰 *Valor da fatura*: R$ $valor\n".
                         "💸 *Valor do pagamento*: R$ $valorpag\n".       
-                        "👤 *Pagamento recebido por*: $coletor\n".	
-                        "💳 *Forma de pagamento*: $formapag\n\n".						
+                        "👤 *Pagamento recebido por*: $coletor\n".    
+                        "💳 *Forma de pagamento*: $formapag\n\n".                        
                         "*Atenciosamente, Nome do Seu Provedor Aqui* 🤝\n".
                         "••••••••••••••••••••••••••••••••••\n".
                         "_Mensagem gerada automaticamente pelo sistema._";
